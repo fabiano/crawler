@@ -1,5 +1,7 @@
 ## crawlr
 
+[![Build Status](https://travis-ci.org/fabiano/crawlr.svg?branch=master)](https://travis-ci.org/fabiano/crawlr)
+
 Simple crawler to extract product data from Americanas, Casas Bahia, Extra, Magazine Luiza, Ponto Frio, and Submarino websites.
 
 ### Playing with
