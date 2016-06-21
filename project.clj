@@ -15,8 +15,10 @@
     [org.postgresql/postgresql "9.4.1208"]
     [org.slf4j/slf4j-log4j12 "1.7.21"]
   ]
+  :jar-name "crawlr-%s.jar"
   :main ^:skip-aot crawlr.cmdline.try
   :profiles {
     :uberjar {:aot :all}
   }
-  :target-path "target/%s")
+  :target-path "target/%s"
+  :uberjar-name "crawlr-%s-standalone.jar")
