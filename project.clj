@@ -17,6 +17,7 @@
   ]
   :jar-name "crawlr-%s.jar"
   :main ^:skip-aot crawlr.cmdline.try
+  :min-lein-version "2.6.1"
   :profiles {
     :uberjar {:aot :all}
   }
