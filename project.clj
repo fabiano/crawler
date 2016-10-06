@@ -6,12 +6,12 @@
     "worker" ["run" "-m" "crawlr.cmdline.worker"]
   }
   :dependencies [
-    [org.apache.logging.log4j/log4j-core "2.6"]
+    [org.apache.logging.log4j/log4j-core "2.7"]
     [org.clojure/clojure "1.8.0"]
-    [org.clojure/java.jdbc "0.6.0"]
+    [org.clojure/java.jdbc "0.6.1"]
     [org.clojure/tools.logging "0.3.1"]
-    [org.jsoup/jsoup "1.8.3"]
-    [org.postgresql/postgresql "9.4.1208"]
+    [org.jsoup/jsoup "1.9.2"]
+    [org.postgresql/postgresql "9.4.1211"]
     [org.slf4j/slf4j-log4j12 "1.7.21"]
   ]
   :jar-name "crawlr-%s.jar"
