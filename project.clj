@@ -6,7 +6,6 @@
     "worker" ["run" "-m" "crawlr.cmdline.worker"]
   }
   :dependencies [
-    [com.taoensso/carmine "2.12.2"]
     [org.apache.logging.log4j/log4j-core "2.6"]
     [org.clojure/clojure "1.8.0"]
     [org.clojure/java.jdbc "0.6.0"]

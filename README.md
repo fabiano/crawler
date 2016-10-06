@@ -13,7 +13,7 @@ Use the command `lein try <url>` to play with the crawler. You should pass a cat
 
 #### Dependencies
 
-Postgres 9.5 and Redis.
+Postgres 9.5.
 
 #### Running the migrations
 
@@ -21,8 +21,4 @@ In order to create all necessary tables run the command: `lein migrate`.
 
 #### Starting the worker
 
-Just type `lein worker`.
-
-#### Feeding the worker
-
-Type `lein feed` to feed the worker with some pages.
+Just type `lein worker pages.examples.txt`.
