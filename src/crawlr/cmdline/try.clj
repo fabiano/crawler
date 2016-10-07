@@ -8,7 +8,7 @@
 
   (let [{products :products next-page :next-page} (crawler/process page)]
     (doseq [product products]
-      (logging/info "Processing product" (:title product)))
+      (logging/info "Processing product" product))
 
     (if-not (nil? next-page)
       (recur next-page))))
