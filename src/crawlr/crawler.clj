@@ -75,7 +75,7 @@
   (some #(% parent) next-page-selectors))
 
 (defn product [parent]
-  (let [title (title parent) url (url parent) price (price parent) extras (extras url)]
+  (let [title (title parent) url (url parent) price (price parent) extras (if (str/blank? url) nil (extras url))]
     {:title title :url url :price price :extras extras}))
 
 (defn products [parent]
