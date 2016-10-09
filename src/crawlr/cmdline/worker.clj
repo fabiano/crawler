@@ -11,7 +11,7 @@
   (try
     (database/create product)
   (catch Exception e
-  (logging/error "Error processing product" (:title product)))))
+    (logging/error e "Error processing product" (:title product)))))
 
 (defn process-page [page]
   (logging/info "Processing page" page)
@@ -24,7 +24,7 @@
       (if-not (nil? next-page)
         (process-page next-page)))
   (catch Exception e
-    (logging/error "Error processing page" page))))
+    (logging/error e "Error processing page" page))))
 
 (defn -main [& args]
   (with-open [reader (io/reader (first args))]

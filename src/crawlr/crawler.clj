@@ -17,10 +17,10 @@
   (if (str/blank? value) nil (Integer/parseInt (str/replace value #"\D" ""))))
 
 (defn sanitize-barcode [value]
-  (if (str/blank? value) nil (str/replace (str/replace value "Cód EAN" "") #"\W" "")))
+  (if (str/blank? value) nil (str/lower-case (str/replace (str/replace value "Cód EAN" "") #"\W" ""))))
 
 (defn sanitize-model [value]
-  (if (str/blank? value) nil (str/replace value #"\W" "")))
+  (if (str/blank? value) nil (str/lower-case (str/replace value #"\W" ""))))
 
 (def product-selectors [
   (fn [parent] (seq (.select parent ".single-product")))
@@ -71,15 +71,15 @@
   (let [doc (connect page)]
     {:barcodes (barcodes doc) :models (models doc)}))
 
-(defn next-page [parent]
-  (some #(% parent) next-page-selectors))
-
 (defn product [parent]
   (let [title (title parent) url (url parent) price (price parent) extras (if (str/blank? url) nil (extras url))]
     {:title title :url url :price price :extras extras}))
 
 (defn products [parent]
   (map product (some #(% parent) product-selectors)))
+
+(defn next-page [parent]
+  (some #(% parent) next-page-selectors))
 
 (defn process [page]
   (let [doc (connect page)]

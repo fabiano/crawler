@@ -1,26 +1,34 @@
 (ns crawlr.database
+  (:require [clojure.data.json :as json])
   (:require [clojure.java.jdbc :as jdbc])
-  (:require [clojure.tools.logging :as logging]))
+  (:require [postgre-types.json :refer [add-jsonb-type]]))
+
+(add-jsonb-type json/write-str json/read-str)
 
 (def db (or (System/getenv "DATABASE_URL") "postgres://crawlr:crawlr@localhost:5432/crawlr"))
 
 (def create-tables-sql "
-  create table if not exists products (
+  create table products (
       id serial not null primary key,
       title text not null,
       url text not null unique,
-      price integer
+      price integer,
+      extras jsonb
   );
 
-  create table if not exists prices (
+  create table prices (
     id serial primary key not null,
     product_id int not null references products,
     price integer,
     published_at timestamp not null
   );")
 
+(def drop-tables-sql "
+  drop table prices;
+  drop table products;")
+
 (def create-functions-sql "
-  create or replace function insert_product_price()
+  create function insert_product_price()
   returns trigger as $body$
 
   begin
@@ -32,7 +40,7 @@
 
   $body$ language plpgsql;
 
-  create or replace function update_product_price()
+  create function update_product_price()
   returns trigger as $body$
 
   begin
@@ -49,28 +57,32 @@
 
   $body$ language plpgsql;")
 
-(def create-triggers-sql "
-  drop trigger if exists product_inserted on products;
-  drop trigger if exists product_updated on products;
+(def drop-functions-sql "
+  drop function insert_product_price();
+  drop function update_product_price();")
 
+(def create-triggers-sql "
   create trigger product_inserted after insert on products for each row execute procedure insert_product_price();
   create trigger product_updated after update on products for each row execute procedure update_product_price();")
 
+(def drop-triggers-sql "
+  drop trigger product_inserted on products;
+  drop trigger product_updated on products;")
+
 (def insert-product-sql "
-  insert into products (title, url, price) values (?, ?, ?)
-  on conflict (url) do update set title = ?, price = ?")
+  insert into products (title, url, price, extras) values (?, ?, ?, ?)
+  on conflict (url) do update set title = ?, price = ?, extras = ?")
 
-(defn migrate []
-  (logging/info "Running migrations")
-
+(defn migrate-up []
   (jdbc/execute! db create-tables-sql)
   (jdbc/execute! db create-functions-sql)
-  (jdbc/execute! db create-triggers-sql)
+  (jdbc/execute! db create-triggers-sql))
 
-  (logging/info "Database migrated to latest version."))
+(defn migrate-down []
+  (jdbc/execute! db drop-triggers-sql)
+  (jdbc/execute! db drop-functions-sql)
+  (jdbc/execute! db drop-tables-sql))
 
 (defn create [product]
-  (logging/info "Creating product " product)
-
-  (let [{:keys [title url price]} product]
-    (jdbc/execute! db [insert-product-sql title url price title price])))
+  (let [{:keys [title url price extras]} product]
+    (jdbc/execute! db [insert-product-sql title url price extras title price extras])))
