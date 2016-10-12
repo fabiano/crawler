@@ -17,7 +17,11 @@ Postgres 9.5.
 
 #### Create the database
 
-In order to create all necessary tables run the command: `lein migrate-up`.
+`psql -U postgres -c "create role crawlr with createdb login password 'crawlr'"`
+
+`psql -U postgres -c "create database crawlr owner crawlr encoding = 'UTF-8'"`
+
+`lein migrate-up`
 
 #### Start the worker
 
