@@ -5,6 +5,11 @@
 (defn connect [page]
   (.get (Jsoup/connect page)))
 
+(defn convert-to-lazyseq [coll]
+  (if (empty? coll)
+    nil
+    (lazy-seq (cons (first coll) (convert-to-lazyseq (rest coll))))))
+
 (defn attr [element name]
   (let [value (.attr element name)]
     (if (str/blank? value) nil value)))
@@ -23,9 +28,9 @@
   (if (str/blank? value) nil (str/lower-case (str/replace value #"\W" ""))))
 
 (def product-selectors [
-  (fn [parent] (seq (.select parent ".single-product")))
-  (fn [parent] (seq (.select parent ".hproduct")))
-  (fn [parent] (seq (.select parent ".product")))])
+  (fn [parent] (convert-to-lazyseq (.select parent ".single-product")))
+  (fn [parent] (convert-to-lazyseq (.select parent ".hproduct")))
+  (fn [parent] (convert-to-lazyseq (.select parent ".product")))])
 
 (def product-title-selectors [
   (fn [parent] (attr (.select parent ".url") "title"))
@@ -68,12 +73,14 @@
   (some #(% parent) product-models-selectors))
 
 (defn extras [page]
-  (let [doc (connect page)]
-    {:barcodes (barcodes doc) :models (models doc)}))
+  (if (str/blank? page)
+    nil
+    (let [doc (connect page)]
+      {:barcodes (barcodes doc) :models (models doc)})))
 
 (defn product [parent]
-  (let [title (title parent) url (url parent) price (price parent) extras (if (str/blank? url) nil (extras url))]
-    {:title title :url url :price price :extras extras}))
+  (let [url (url parent)]
+    {:title (title parent) :url url :price (price parent) :extras (extras url)}))
 
 (defn products [parent]
   (map product (some #(% parent) product-selectors)))

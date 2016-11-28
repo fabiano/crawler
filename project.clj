@@ -18,10 +18,15 @@
     [postgre-types "0.0.4"]
   ]
   :jar-name "crawlr-%s.jar"
-  :main ^:skip-aot crawlr.cmdline.try
+  :main nil
   :min-lein-version "2.6.1"
   :profiles {
     :uberjar {:aot :all}
+  }
+  :repl-options {
+    :init (do
+            (use 'crawlr.crawler)
+            (use 'crawlr.database))
   }
   :target-path "target/%s"
   :uberjar-name "crawlr-%s-standalone.jar")
