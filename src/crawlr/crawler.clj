@@ -1,92 +1,45 @@
 (ns crawlr.crawler
   (:require [clojure.string :as str])
+  (:require [crawlr.selectors :as selectors])
   (:import [org.jsoup Jsoup]))
 
 (defn connect [page]
-  (.get (Jsoup/connect page)))
-
-(defn convert-to-lazyseq [coll]
-  (if (empty? coll)
-    nil
-    (lazy-seq (cons (first coll) (convert-to-lazyseq (rest coll))))))
-
-(defn attr [element name]
-  (let [value (.attr element name)]
-    (if (str/blank? value) nil value)))
-
-(defn text [element]
-  (let [value (.text element)]
-    (if (str/blank? value) nil value)))
-
-(defn sanitize-price [value]
-  (if (str/blank? value) nil (Integer/parseInt (str/replace value #"\D" ""))))
-
-(defn sanitize-barcode [value]
-  (if (str/blank? value) nil (str/lower-case (str/replace (str/replace value "Cód EAN" "") #"\W" ""))))
-
-(defn sanitize-model [value]
-  (if (str/blank? value) nil (str/lower-case (str/replace value #"\W" ""))))
-
-(def product-selectors [
-  (fn [parent] (convert-to-lazyseq (.select parent ".single-product")))
-  (fn [parent] (convert-to-lazyseq (.select parent ".hproduct")))
-  (fn [parent] (convert-to-lazyseq (.select parent ".product")))])
-
-(def product-title-selectors [
-  (fn [parent] (attr (.select parent ".url") "title"))
-  (fn [parent] (attr (.select parent ".link.url") "title"))
-  (fn [parent] (attr (.select parent ".product-li") "title"))])
-
-(def product-url-selectors [
-  (fn [parent] (attr (.select parent ".url") "abs:href"))
-  (fn [parent] (attr (.select parent ".link.url") "abs:href"))
-  (fn [parent] (attr (.select parent ".product-li") "abs:href"))])
-
-(def product-price-selectors [
-  (fn [parent] (sanitize-price (text (.select parent ".price.sale"))))
-  (fn [parent] (sanitize-price (text (.select parent ".price"))))])
-
-(def product-barcodes-selectors [
-  (fn [parent] (seq (map sanitize-barcode (map text (.select parent "th:contains(Código de Barras) + td")))))
-  (fn [parent] (seq (map sanitize-barcode (map text (.select parent "span:contains(Cód EAN)")))))])
-
-(def product-models-selectors [
-  (fn [parent] (seq (map sanitize-model (map text (.select parent "th:contains(Referência do Modelo) + td")))))
-  (fn [parent] (seq (map sanitize-model (map text (.select parent "span:contains(Referência) + p")))))])
-
-(def next-page-selectors [
-  (fn [parent] (attr (.select parent "link[rel=next]") "href"))])
+  (-> page
+    (Jsoup/connect)
+    (.userAgent "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.1")
+    (.timeout 60000)
+    (.get)))
 
 (defn title [parent]
-  (some #(% parent) product-title-selectors))
+  (some #(% parent) selectors/product-title-selectors))
 
 (defn url [parent]
-  (some #(% parent) product-url-selectors))
+  (some #(% parent) selectors/product-url-selectors))
 
 (defn price [parent]
-  (some #(% parent) product-price-selectors))
+  (some #(% parent) selectors/product-price-selectors))
 
-(defn barcodes [parent]
-  (some #(% parent) product-barcodes-selectors))
+(defn barcode [parent]
+  (some #(% parent) selectors/product-barcode-selectors))
 
-(defn models [parent]
-  (some #(% parent) product-models-selectors))
+(defn isbn [parent]
+  (some #(% parent) selectors/product-isbn-selectors))
 
 (defn extras [page]
   (if (str/blank? page)
     nil
     (let [doc (connect page)]
-      {:barcodes (barcodes doc) :models (models doc)})))
+      {:barcode (barcode doc) :isbn (isbn doc)})))
 
 (defn product [parent]
   (let [url (url parent)]
     {:title (title parent) :url url :price (price parent) :extras (extras url)}))
 
 (defn products [parent]
-  (map product (some #(% parent) product-selectors)))
+  (map product (some #(% parent) selectors/product-selectors)))
 
 (defn next-page [parent]
-  (some #(% parent) next-page-selectors))
+  (some #(% parent) selectors/next-page-selectors))
 
 (defn process [page]
   (let [doc (connect page)]

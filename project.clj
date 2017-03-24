@@ -1,6 +1,5 @@
 (defproject crawlr "0.1.0-SNAPSHOT"
   :aliases {
-    "feed" ["run" "-m" "crawlr.cmdline.feed"]
     "migrate-up" ["run" "-m" "crawlr.cmdline.migrate/up"]
     "migrate-down" ["run" "-m" "crawlr.cmdline.migrate/down"]
     "try" ["run" "-m" "crawlr.cmdline.try"]

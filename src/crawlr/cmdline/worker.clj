@@ -22,7 +22,8 @@
         (process-product product))
 
       (if-not (nil? next-page)
-        (process-page next-page)))
+        (if-not (= page next-page)
+          (process-page next-page))))
   (catch Exception e
     (logging/error e "Error processing page" page))))
 

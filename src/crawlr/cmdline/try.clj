@@ -11,7 +11,8 @@
       (logging/info "Processing product" product))
 
     (if-not (nil? next-page)
-      (recur next-page))))
+      (if-not (= page next-page)
+        (recur next-page)))))
 
 (defn -main [& args]
   (run (first args)))
