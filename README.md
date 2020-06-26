@@ -7,7 +7,7 @@ Simple crawler to extract product data from some Brazilian e-commerce websites.
 
 ### Playing
 
-Use the command `lein try <url>` to play with the crawler. You should pass a category page as argument: `lein try <product-category-page>`.
+Use the command `lein try <url>` to play with the crawler. You should pass a category page as argument: `lein try http://www.website.com.br/categoria/livros/historia-em-quadrinhos`.
 
 ### Running the application
 
